@@ -3,16 +3,19 @@ import { Fragment, useEffect, useState } from "react";
 import { API_BASE_URL } from "../envConst";
 
 const CallHistoryDetails = ({ activeId }) => {
+
+  const TOKEN = localStorage?.getItem('token') || ''
+
   const [data, setData] = useState("");
 
   useEffect(() => {
     if (!activeId) return
 
-    const apiPath = API_BASE_URL + '/summary' + activeId
+    const apiPath = API_BASE_URL + '/analytics/summary/' + activeId
     axios
       .get(apiPath, {
         headers: {
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc1MTE5NDAzN30.vgaSp1Ow0wFJy03m96yhdHO7VRgtq7gd_3KAbPPIb6w`,
+          Authorization: `Bearer ${JSON.parse(TOKEN)}`,
         },
       })
       .then((res) => {
@@ -21,7 +24,8 @@ const CallHistoryDetails = ({ activeId }) => {
       .catch((err) => {
         console.error("Failed to fetch analytics data", err);
       });
-  }, [activeId]);
+  }, [activeId, TOKEN]);
+
   return (
     <Fragment>
       <div className="card shadow-sm mb-4">

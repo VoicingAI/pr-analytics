@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../envConst";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
+
+  const navigate = useNavigate()
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -10,20 +14,23 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const apiPath = API_BASE_URL + '/login'
+    const apiPath = API_BASE_URL + '/analytics/login'
+
+    const formBody = new URLSearchParams();
+    formBody.append('username', username);
+    formBody.append('password', password);
 
     try {
       // Replace with your real login API endpoint
-      const response = await axios.post(apiPath, {
-        username,
-        password,
-      });
+      const response = await axios.post(apiPath, formBody);
 
       // Store response in localStorage
-      localStorage.setItem("userData", JSON.stringify(response.data));
+      localStorage.setItem("token", JSON.stringify(response.data?.access_token));
 
       // Redirect or show success
-      alert("Login successful!");
+      // alert("Login successful!");
+      navigate('/analytics')
+
     } catch (error) {
       setErrorMsg("Invalid credentials or API error.");
       console.error("Login failed:", error);

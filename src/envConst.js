@@ -1,4 +1,4 @@
-export const API_BASE_URL = "http://staging-pr-voicing-orchestration-service.demo.svc.cluster.local:80";
+export const API_BASE_URL = "https://feature-plivo.demo.voicing.ai/api/v1";
 
 export const FORMATTED_DATE_UI = (timestamp) => {
   if (!timestamp) return "";

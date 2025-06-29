@@ -87,15 +87,18 @@ export const SAMPLE_DATA = [
 ];
 
 const AccentureAnalytics = () => {
-  const [data, setData] = useState(SAMPLE_DATA);
+
+  const TOKEN = localStorage?.getItem('token') || ''
+
+  const [data, setData] = useState([]);
   const [activeId, setActiveId] = useState(null);
+
   const handleGetTranscripts = () => {
 
-
     axios
-      .get(`${API_BASE_URL}/data`, {
+      .get(`${API_BASE_URL}/analytics/data`, {
         headers: {
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc1MTE5NDAzN30.vgaSp1Ow0wFJy03m96yhdHO7VRgtq7gd_3KAbPPIb6w`,
+          Authorization: `Bearer ${JSON.parse(TOKEN)}`,
         },
       })
       .then((res) => {
@@ -114,9 +117,25 @@ const AccentureAnalytics = () => {
     return data?.find((d) => d?.unique_id === activeId);
   }, [activeId]);
 
+  const handleGenerateEmail = () => {
+
+    const apiPath = API_BASE_URL + '/analytics/mail/' + ACTIVE_SUMMARY_INFO?.unique_id
+    axios.get(apiPath, {
+      headers: {
+        Authorization: `Bearer ${JSON.parse(TOKEN)}`,
+      },
+    }).then((res) => {
+      if (res?.status === 200) {
+        alert("Email generated successfully")
+      }
+    }).catch((err) => {
+      console.error("Failed to generate email: ", err)
+    })
+  }
+
   useEffect(() => {
     handleGetTranscripts();
-  }, []);
+  }, [TOKEN]);
 
   return (
     <Fragment>
@@ -240,36 +259,22 @@ const AccentureAnalytics = () => {
               </div>
 
               {/* Call History Details */}
-              <CallHistoryDetails activeId={activeId} />
-
+              {activeId &&
+                <CallHistoryDetails activeId={activeId} />
+              }
               {/* Send Email Section */}
-              <div className="card shadow-sm">
-                <div className="card-header bg-info text-white">
-                  <h6 className="mb-0">Send Email</h6>
-                </div>
-                <div className="card-body">
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      alert("Email sent!");
-                    }}
-                  >
-                    <div className="form-group">
-                      <label htmlFor="emailInput">Recipient Email</label>
-                      <input
-                        type="email"
-                        className="form-control"
-                        id="emailInput"
-                        placeholder="Enter email"
-                        required
-                      />
-                    </div>
-                    <button type="submit" className="btn btn-primary mt-2">
-                      Send Email
+              {ACTIVE_SUMMARY_INFO?.unique_id &&
+                <div className="card shadow-sm">
+                  <div className="card-header bg-info text-white">
+                    <h6 className="mb-0">Generate Email</h6>
+                  </div>
+                  <div className="card-body">
+                    <button type="submit" className="btn btn-primary mt-2" onClick={handleGenerateEmail}>
+                      Generate Email
                     </button>
-                  </form>
+                  </div>
                 </div>
-              </div>
+              }
             </div>
           </div>
         </div>

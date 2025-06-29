@@ -9,12 +9,14 @@ const AnalyticsSummary = () => {
     total_call_time_minutes: 0,
   });
 
+  const TOKEN = localStorage?.getItem('token') || ''
+
   useEffect(() => {
-    const apiPath = API_BASE_URL + '/metadata'
+    const apiPath = API_BASE_URL + '/analytics/metadata'
     axios
       .get(apiPath, {
         headers: {
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc1MTE5NDAzN30.vgaSp1Ow0wFJy03m96yhdHO7VRgtq7gd_3KAbPPIb6w`,
+          Authorization: `Bearer ${JSON.parse(TOKEN)}`,
         },
       })
       .then((res) => {
@@ -23,7 +25,7 @@ const AnalyticsSummary = () => {
       .catch((err) => {
         console.error("Failed to fetch analytics data", err);
       });
-  }, []);
+  }, [TOKEN]);
 
   const totalCallDurationSeconds = Math.round(
     data.total_call_time_minutes * 60
