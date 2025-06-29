@@ -10,7 +10,7 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const apiPath = API_BASE_URL + 'login'
+    const apiPath = API_BASE_URL + '/login'
 
     try {
       // Replace with your real login API endpoint

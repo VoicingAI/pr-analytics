@@ -8,7 +8,7 @@ const CallHistoryDetails = ({ activeId }) => {
   useEffect(() => {
     if (!activeId) return
 
-    const apiPath = API_BASE_URL + 'summary' + activeId
+    const apiPath = API_BASE_URL + '/summary' + activeId
     axios
       .get(apiPath, {
         headers: {

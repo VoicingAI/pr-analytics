@@ -10,7 +10,7 @@ const AnalyticsSummary = () => {
   });
 
   useEffect(() => {
-    const apiPath = API_BASE_URL + 'metadata'
+    const apiPath = API_BASE_URL + '/metadata'
     axios
       .get(apiPath, {
         headers: {
