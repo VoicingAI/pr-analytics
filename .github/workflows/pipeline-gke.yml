@@ -74,9 +74,9 @@ jobs:
       # Deploy the Docker image to the GKE cluster
       - name: Deploy
         run: |
-          helm upgrade --install $DEPLOYMENT_NAME helm-charts/ -f helm-charts/overrides/gke-non-prod.yaml -n demo\
+          helm upgrade --install $DEPLOYMENT_NAME helm-charts/ -f helm-charts/overrides/gke-non-prod.yaml -n dev\
             --set image.tag=$GITHUB_SHA \
             --wait
-          kubectl rollout status deployment/$DEPLOYMENT_NAME -n demo
-          kubectl get services -o wide -n demo
+          kubectl rollout status deployment/$DEPLOYMENT_NAME -n dev
+          kubectl get services -o wide -n dev
       
