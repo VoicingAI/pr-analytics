@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Fragment, useEffect, useState } from "react";
 import { API_BASE_URL } from "../envConst";
+import Markdown from "react-markdown";
 
 const CallHistoryDetails = ({ activeId }) => {
 
@@ -33,7 +34,7 @@ const CallHistoryDetails = ({ activeId }) => {
           <h6 className="mb-0">Call Summary Details</h6>
         </div>
         <div className="card-body">
-          <p>{data?.summary_text}</p>
+          <Markdown>{data?.summary_text}</Markdown>
         </div>
       </div>
     </Fragment>

@@ -10,6 +10,7 @@ export const FORMATTED_DATE_UI = (timestamp) => {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
+    timeZone: "Asia/Kolkata"
   };
 
   const formatted = dateObj.toLocaleString("en-US", options);

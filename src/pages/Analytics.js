@@ -3,6 +3,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import AnalyticsSummary from "../components/analyticsCount";
 import CallHistoryDetails from "../components/callHistoryDetails";
 import { API_BASE_URL, FORMATTED_DATE_UI } from "../envConst";
+import { useNavigate } from "react-router-dom";
 
 export const SAMPLE_DATA = [
   {
@@ -88,10 +89,13 @@ export const SAMPLE_DATA = [
 
 const AccentureAnalytics = () => {
 
+  const navigate = useNavigate()
+
   const TOKEN = localStorage?.getItem('token') || ''
 
   const [data, setData] = useState([]);
   const [activeId, setActiveId] = useState(null);
+  const [loading, setLoading] = useState(false)
 
   const handleGetTranscripts = () => {
 
@@ -118,7 +122,7 @@ const AccentureAnalytics = () => {
   }, [activeId]);
 
   const handleGenerateEmail = () => {
-
+    setLoading(true)
     const apiPath = API_BASE_URL + '/analytics/mail/' + ACTIVE_SUMMARY_INFO?.unique_id
     axios.get(apiPath, {
       headers: {
@@ -130,7 +134,12 @@ const AccentureAnalytics = () => {
       }
     }).catch((err) => {
       console.error("Failed to generate email: ", err)
-    })
+    }).finally(() => setLoading(false))
+  }
+
+  const handleLogout = () => {
+    localStorage.clear()
+    navigate('/')
   }
 
   useEffect(() => {
@@ -160,9 +169,9 @@ const AccentureAnalytics = () => {
                   Welcome, <strong className="text-white">Sachin</strong>
                 </span>
               </div>
-              <a href="/logout" className="btn btn-danger btn-sm text-white">
+              <button onClick={() => handleLogout()} className="btn btn-danger btn-sm text-white">
                 Logout
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -193,17 +202,17 @@ const AccentureAnalytics = () => {
                       >
                         <div className="d-flex justify-content-between align-items-center mb-1">
                           <span className="badge badge-success">
-                            9619906685
+                            8799368044
                           </span>
                           <span className="badge badge-secondary">
-                            {FORMATTED_DATE_UI(key?.start_timestamp)}
+                            {FORMATTED_DATE_UI(key?.created_at)}
                           </span>
                         </div>
-                        <div className="small text-muted">
+                        <div className="small ">
                           {key?.audio_blob_path}
                           <br />
-                          {FORMATTED_DATE_UI(key?.end_timestamp)} -{" "}
-                          {key?.call_duration}
+                          <span className="text-muted">{FORMATTED_DATE_UI(key?.end_timestamp)} -{" "}
+                            {+key?.call_duration?.toFixed(2)} sec</span>
                         </div>
                       </div>
                     ))}
@@ -234,7 +243,7 @@ const AccentureAnalytics = () => {
                     Your browser does not support the audio element.
                   </audio>
 
-                  <div>
+                  <div style={{ maxHeight: 400, overflowY: 'auto' }}>
                     <p className="font-weight-bold">Transcript:</p>
 
                     {!!ACTIVE_SUMMARY_INFO?.full_transcript &&
@@ -269,8 +278,8 @@ const AccentureAnalytics = () => {
                     <h6 className="mb-0">Generate Email</h6>
                   </div>
                   <div className="card-body">
-                    <button type="submit" className="btn btn-primary mt-2" onClick={handleGenerateEmail}>
-                      Generate Email
+                    <button type="submit" disabled={loading} className="btn btn-primary mt-2" onClick={handleGenerateEmail}>
+                      {loading ? 'Generating...' : "Generate"}
                     </button>
                   </div>
                 </div>
