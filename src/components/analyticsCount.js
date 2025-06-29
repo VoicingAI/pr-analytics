@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../envConst";
+import { useNavigate } from "react-router-dom";
 
 const AnalyticsSummary = () => {
+  const navigate = useNavigate()
   const [data, setData] = useState({
     total_calls: 0,
     average_duration_seconds: 0,
@@ -24,6 +26,9 @@ const AnalyticsSummary = () => {
         setData(res.data);
       })
       .catch((err) => {
+        if (err?.status === 401) {
+          navigate('/')
+        }
         console.error("Failed to fetch analytics data", err);
       });
   }, [TOKEN]);

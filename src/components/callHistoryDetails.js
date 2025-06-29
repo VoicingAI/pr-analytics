@@ -2,8 +2,11 @@ import axios from "axios";
 import { Fragment, useEffect, useState } from "react";
 import { API_BASE_URL } from "../envConst";
 import Markdown from "react-markdown";
+import { useNavigate } from "react-router-dom";
 
 const CallHistoryDetails = ({ activeId }) => {
+
+  const navigate = useNavigate()
 
   const TOKEN = localStorage?.getItem('token') || ''
 
@@ -23,6 +26,9 @@ const CallHistoryDetails = ({ activeId }) => {
         setData(res.data);
       })
       .catch((err) => {
+        if (err?.status === 401) {
+          navigate('/')
+        }
         console.error("Failed to fetch analytics data", err);
       });
   }, [activeId, TOKEN]);

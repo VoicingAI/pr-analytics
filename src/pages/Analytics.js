@@ -6,6 +6,7 @@ import { API_BASE_URL, FORMATTED_DATE_UI } from "../envConst";
 import { useNavigate } from "react-router-dom";
 import EmailListModal from "./EmailListModal";
 
+
 export const SAMPLE_DATA = [
   {
     session_id: "session_abc123def456",
@@ -97,7 +98,7 @@ const AccentureAnalytics = () => {
   const [data, setData] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [loading, setLoading] = useState(false)
-  const [emailListData, setEmailListData] = useState('')
+  const [emailData, setEmailData] = useState('')
   const [mailModalIsOpen, setMailModalIsOpen] = useState(false)
 
   const handleGetTranscripts = () => {
@@ -109,10 +110,16 @@ const AccentureAnalytics = () => {
         },
       })
       .then((res) => {
-        setData(res?.data?.data);
+        if (res?.status === 200) {
+          setData(res?.data?.data);
+        }
       })
       .catch((err) => {
+        if (err?.status === 401) {
+          navigate('/')
+        }
         console.error("Failed to fetch analytics data", err);
+
       });
   };
 
@@ -135,10 +142,13 @@ const AccentureAnalytics = () => {
     }).then((res) => {
       if (res?.status === 200) {
         alert("Email generated successfully")
-        setEmailListData(res?.data?.mail_text)
+        setEmailData(res?.data?.mail_text)
         setMailModalIsOpen(true)
       }
     }).catch((err) => {
+      if (err?.status === 401) {
+        navigate('/')
+      }
       console.error("Failed to generate email: ", err)
     }).finally(() => setLoading(false))
   }
@@ -158,7 +168,7 @@ const AccentureAnalytics = () => {
     }
   }, [TOKEN])
 
-  console.log({ emailListData })
+  console.log({ emailData })
 
   return (
     <Fragment>
@@ -236,7 +246,7 @@ const AccentureAnalytics = () => {
             </div>
 
             {/* Right: Call Details */}
-            <div className="col-md-8">
+            <div className="col-md-8" style={{ marginBottom: '50px' }}>
               <div className="card shadow-sm mb-4">
                 <div className="card-header d-flex justify-content-between align-items-center bg-primary text-white">
                   <h5 className="mb-0">Call Details</h5>
@@ -288,25 +298,29 @@ const AccentureAnalytics = () => {
               }
               {/* Send Email Section */}
               {ACTIVE_SUMMARY_INFO?.unique_id &&
-                <div className="card shadow-sm">
+                <div className="card shadow-sm" >
                   <div className="card-header bg-info text-white">
                     <h6 className="mb-0">Generate Email</h6>
                   </div>
-                  <div className="card-body">
-                    <button type="submit" disabled={loading} className="btn btn-primary mt-2" onClick={handleGenerateEmail}>
+                  <div className="card-body" >
+                    <button style={{ marginBottom: '10px' }} type="submit" disabled={loading} className="btn btn-primary mt-2" onClick={handleGenerateEmail}>
                       {loading ? 'Generating...' : "Generate"}
                     </button>
+                    {mailModalIsOpen &&
+                      <>
+                        <textarea className="w-100 form-control mb-2" style={{ minHeight: '200px' }} value={emailData} onChange={(e) => setEmailData(e.target.value)} />
+                        <button className='btn btn-primary ' style={{ cursor: 'pointer' }} onClick={() => navigator?.clipboard?.writeText(emailData)}>Copy</button>
+                      </>
+                    }
                   </div>
                 </div>
               }
+
             </div>
           </div>
         </div>
-        {mailModalIsOpen &&
-          <EmailListModal modalIsOpen={mailModalIsOpen} setModalIsOpen={setMailModalIsOpen} data={emailListData} />
-        }
+
       </div>
-      {console.log(mailModalIsOpen)}
     </Fragment>
   );
 };
