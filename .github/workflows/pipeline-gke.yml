@@ -1,0 +1,82 @@
+name: 'Build and Deploy to GKE'
+
+on:
+  push:
+    branches:
+      - 'main'
+
+env:
+  PROJECT_ID: ${{ vars.PROJECT_ID }}
+  GAR_LOCATION: ${{ vars.GAR_LOCATION }}
+  GKE_CLUSTER: ${{ vars.GKE_CLUSTER }}
+  GKE_LOCATION: ${{ vars.GKE_LOCATION }}
+  DEPLOYMENT_NAME: 'pr-analytics' 
+  REPOSITORY: 'gcr.io'
+  IMAGE: 'pr-analytics'
+  WORKLOAD_IDENTITY_PROVIDER: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+  SERVICE_ACCOUNT_EMAIL: ${{ vars.SERVICE_ACCOUNT_EMAIL }}
+  GITHUB_TOKEN: ${{ vars.GH_TOKEN }}
+
+jobs:
+  setup-build-publish-deploy:
+    name: 'Setup, Build, Publish, and Deploy'
+    runs-on: 'ubuntu-latest'
+    environment: 'dev'
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v4' 
+
+      # Configure Workload Identity Federation and generate an access token.
+      #
+      # See https://github.com/google-github-actions/auth for more options,
+      # including authenticating via a JSON credentials file.
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: "${{ env.SERVICE_ACCOUNT_EMAIL }}"
+          project_id: "${{ env.PROJECT_ID }}"
+          token_format: "access_token"
+
+      # Authenticate Docker to Google Cloud Artifact Registry
+      - name: Configure Docker to use GCR
+        run: |
+          gcloud auth configure-docker
+
+      # Get the GKE credentials so we can deploy to the cluster
+      - name: 'Set up GKE credentials'
+        uses: 'google-github-actions/get-gke-credentials@v2'
+        with:
+          cluster_name: '${{ env.GKE_CLUSTER }}'
+          location: '${{ env.GKE_LOCATION }}'
+
+      # Build the Docker image
+      - name: 'Build and push Docker container'
+        run: |-
+          DOCKER_TAG="${REPOSITORY}/${PROJECT_ID}/github.com/voicingai/${IMAGE}:${GITHUB_SHA}"
+          docker build \
+            --tag "${DOCKER_TAG}" \
+            .
+
+          docker push "${DOCKER_TAG}"
+
+      # Install helm
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+      # Deploy the Docker image to the GKE cluster
+      - name: Deploy
+        run: |
+          helm upgrade --install $DEPLOYMENT_NAME helm-charts/ -f helm-charts/overrides/gke-non-prod.yaml -n demo\
+            --set image.tag=$GITHUB_SHA \
+            --wait
+          kubectl rollout status deployment/$DEPLOYMENT_NAME -n demo
+          kubectl get services -o wide -n demo
+      
