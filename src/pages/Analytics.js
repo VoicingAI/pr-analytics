@@ -4,6 +4,7 @@ import AnalyticsSummary from "../components/analyticsCount";
 import CallHistoryDetails from "../components/callHistoryDetails";
 import { API_BASE_URL, FORMATTED_DATE_UI } from "../envConst";
 import { useNavigate } from "react-router-dom";
+import EmailListModal from "./EmailListModal";
 
 export const SAMPLE_DATA = [
   {
@@ -96,6 +97,8 @@ const AccentureAnalytics = () => {
   const [data, setData] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [loading, setLoading] = useState(false)
+  const [emailListData, setEmailListData] = useState('')
+  const [mailModalIsOpen, setMailModalIsOpen] = useState(false)
 
   const handleGetTranscripts = () => {
     if (!TOKEN) return
@@ -132,6 +135,8 @@ const AccentureAnalytics = () => {
     }).then((res) => {
       if (res?.status === 200) {
         alert("Email generated successfully")
+        setEmailListData(res?.data?.mail_text)
+        setMailModalIsOpen(true)
       }
     }).catch((err) => {
       console.error("Failed to generate email: ", err)
@@ -153,6 +158,8 @@ const AccentureAnalytics = () => {
     }
   }, [TOKEN])
 
+  console.log({ emailListData })
+
   return (
     <Fragment>
       <div className="container">
@@ -165,15 +172,15 @@ const AccentureAnalytics = () => {
               <p className="lead mb-1">
                 Call recordings and transcripts analysis
               </p>
-              <p className="text-light small mb-0 text-md-left text-center font-italic">
+              {/* <p className="text-light small mb-0 text-md-left text-center font-italic">
                 Last Updated: 22 May 2025
-              </p>
+              </p> */}
             </div>
 
             <div className="col-md-3 text-center text-md-right mt-3 mt-md-0">
               <div className="user-info mb-2">
                 <span className="font-weight-light">
-                  Welcome, <strong className="text-white">Sachin</strong>
+                  Welcome
                 </span>
               </div>
               <button onClick={() => handleLogout()} className="btn btn-danger btn-sm text-white">
@@ -295,7 +302,11 @@ const AccentureAnalytics = () => {
             </div>
           </div>
         </div>
+        {mailModalIsOpen &&
+          <EmailListModal modalIsOpen={mailModalIsOpen} setModalIsOpen={setMailModalIsOpen} data={emailListData} />
+        }
       </div>
+      {console.log(mailModalIsOpen)}
     </Fragment>
   );
 };
