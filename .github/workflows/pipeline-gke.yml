@@ -6,16 +6,16 @@ on:
       - 'main'
 
 env:
-  PROJECT_ID: ${{ vars.PROJECT_ID }}
-  GAR_LOCATION: ${{ vars.GAR_LOCATION }}
-  GKE_CLUSTER: ${{ vars.GKE_CLUSTER }}
-  GKE_LOCATION: ${{ vars.GKE_LOCATION }}
   DEPLOYMENT_NAME: 'pr-analytics' 
   REPOSITORY: 'gcr.io'
   IMAGE: 'pr-analytics'
-  WORKLOAD_IDENTITY_PROVIDER: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
-  SERVICE_ACCOUNT_EMAIL: ${{ vars.SERVICE_ACCOUNT_EMAIL }}
-  GITHUB_TOKEN: ${{ vars.GH_TOKEN }}
+  PROJECT_ID: 'nonprod1-svc-r4rc'
+  GAR_LOCATION: 'us-central1'
+  GKE_CLUSTER: 'pipeline-cluster-1'
+  GKE_LOCATION: 'us-central1'
+  WORKLOAD_IDENTITY_PROVIDER: 'projects/913084804953/locations/global/workloadIdentityPools/github/providers/github'
+  SERVICE_ACCOUNT_EMAIL: 'github-actions@nonprod1-svc-r4rc.iam.gserviceaccount.com'
+
 
 jobs:
   setup-build-publish-deploy:
