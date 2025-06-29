@@ -98,11 +98,11 @@ const AccentureAnalytics = () => {
   const [loading, setLoading] = useState(false)
 
   const handleGetTranscripts = () => {
-
+    if (!TOKEN) return
     axios
       .get(`${API_BASE_URL}/analytics/data`, {
         headers: {
-          Authorization: `Bearer ${JSON.parse(TOKEN)}`,
+          Authorization: `Bearer ${TOKEN}`,
         },
       })
       .then((res) => {
@@ -122,11 +122,12 @@ const AccentureAnalytics = () => {
   }, [activeId]);
 
   const handleGenerateEmail = () => {
+    if (!TOKEN) return
     setLoading(true)
     const apiPath = API_BASE_URL + '/analytics/mail/' + ACTIVE_SUMMARY_INFO?.unique_id
     axios.get(apiPath, {
       headers: {
-        Authorization: `Bearer ${JSON.parse(TOKEN)}`,
+        Authorization: `Bearer ${TOKEN}`,
       },
     }).then((res) => {
       if (res?.status === 200) {
@@ -145,6 +146,12 @@ const AccentureAnalytics = () => {
   useEffect(() => {
     handleGetTranscripts();
   }, [TOKEN]);
+
+  useEffect(() => {
+    if (!TOKEN) {
+      navigate('/')
+    }
+  }, [TOKEN])
 
   return (
     <Fragment>
@@ -197,6 +204,7 @@ const AccentureAnalytics = () => {
                     data.map((key, index) => (
                       <div
                         className="border rounded p-2 mb-2"
+                        style={{ cursor: 'pointer' }}
                         key={index}
                         onClick={() => handleChangeId(key?.unique_id)}
                       >

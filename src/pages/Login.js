@@ -24,8 +24,10 @@ const LoginPage = () => {
       // Replace with your real login API endpoint
       const response = await axios.post(apiPath, formBody);
 
-      // Store response in localStorage
-      localStorage.setItem("token", JSON.stringify(response.data?.access_token));
+      // Store response in localStoragei
+      if (response.data?.access_token) {
+        localStorage.setItem("token", response.data?.access_token)
+      }
 
       // Redirect or show success
       // alert("Login successful!");

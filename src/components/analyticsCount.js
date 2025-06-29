@@ -12,11 +12,12 @@ const AnalyticsSummary = () => {
   const TOKEN = localStorage?.getItem('token') || ''
 
   useEffect(() => {
+    if (!TOKEN) return
     const apiPath = API_BASE_URL + '/analytics/metadata'
     axios
       .get(apiPath, {
         headers: {
-          Authorization: `Bearer ${JSON.parse(TOKEN)}`,
+          Authorization: `Bearer ${TOKEN}`,
         },
       })
       .then((res) => {

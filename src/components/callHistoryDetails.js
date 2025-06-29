@@ -11,12 +11,12 @@ const CallHistoryDetails = ({ activeId }) => {
 
   useEffect(() => {
     if (!activeId) return
-
+    if (!TOKEN) return
     const apiPath = API_BASE_URL + '/analytics/summary/' + activeId
     axios
       .get(apiPath, {
         headers: {
-          Authorization: `Bearer ${JSON.parse(TOKEN)}`,
+          Authorization: `Bearer ${TOKEN}`,
         },
       })
       .then((res) => {
